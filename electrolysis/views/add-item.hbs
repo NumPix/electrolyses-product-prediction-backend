@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+{{> head}}
+<body>
+<div class="phone">
+  <div class="screen add-screen">
+    <form class="chem-form" action="/add" method="post" onsubmit="return false;">
+
+      <input
+        class="chem-input formula-input"
+        type="text"
+        name="formula"
+        placeholder="Формула"
+        value="{{draft.formula}}"
+      />
+
+      <div class="media-row">
+        <div class="molecule-preview">
+          <img src="" alt="">
+        </div>
+
+        <button class="media-add" type="button" aria-label="Добавить изображение">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+
+      <input
+        class="chem-input compound-name"
+        type="text"
+        name="name"
+        placeholder="Название вещества"
+        value="{{draft.name}}"
+      />
+
+      <input
+        class="chem-input"
+        type="number"
+        name="mass"
+        placeholder="Масса, г"
+        value="{{draft.mass}}"
+        min="0"
+        step="any"
+      />
+
+      <input
+        class="chem-input"
+        type="number"
+        name="concentration"
+        placeholder="Концентрация, %"
+        value="{{draft.concentration}}"
+        min="0"
+        max="100"
+        step="any"
+      />
+
+    </form>
+
+    <div class="add-bar">
+      <button type="button" class="add-button">Добавить</button>
+    </div>
+  </div>
+  {{> nav}}
+</div>
+</body>
+</html>

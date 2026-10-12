@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+{{> head}}
+<body>
+<div class="phone">
+  <div class="screen screen--flush">
+    <article class="chem-feed-card">
+      <img
+        class="chem-feed-image"
+        src="{{item.imgSrc}}"
+        alt="{{item.formula}}"
+      />
+
+      <div class="feed-bottom">
+        <section class="feed-info">
+          <h2>{{item.formula}}</h2>
+          <p>{{item.name}}</p>
+
+          {{#if item.mass}}
+            <p>Масса: {{item.mass}} г</p>
+          {{/if}}
+
+          {{#if item.concentration}}
+            <p>Концентрация: {{item.concentration}}%</p>
+          {{/if}}
+        </section>
+
+        <div class="feed-actions">
+          <button class="round-action" type="button" aria-label="В избранное">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 21s-8-5.5-8-11a5 5 0 0110-1 5 5 0 0110 1c0 5.5-8 11-8 11z"/>
+            </svg>
+          </button>
+
+          <a
+            class="round-action down-action"
+            href="{{nextUrl}}"
+            aria-label="Следующий элемент"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+  {{> nav}}
+</div>
+</body>
+</html>
