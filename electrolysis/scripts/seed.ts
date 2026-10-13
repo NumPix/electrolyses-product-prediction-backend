@@ -67,7 +67,7 @@ const compounds = [
     name: 'Сульфат меди(II)',
     description: '',
     status: 'draft',
-    imgSrc: PLACEHOLDER_IMAGE_KEY,
+    imgSrc: 'cuso4.jpg',
     vidSrc: PLACEHOLDER_VIDEO_KEY,
     mass: null,
     concentration: null,
