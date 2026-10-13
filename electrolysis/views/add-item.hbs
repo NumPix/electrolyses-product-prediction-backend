@@ -1,40 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 {{> head}}
 <body>
 <div class="phone">
   <div class="screen add-screen">
-    <form class="chem-form" action="/add" method="post" onsubmit="return false;">
-
+    <form
+      class="chem-form"
+      action="{{#if draft}}/electrolysis/publish{{else}}/electrolysis/draft{{/if}}"
+      method="post"
+    >
       <input
         class="chem-input formula-input"
         type="text"
         name="formula"
-        placeholder="Формула"
+        placeholder="Формула электролита"
         value="{{draft.formula}}"
+        required
+        {{#if draft}}readonly{{/if}}
       />
 
       <div class="media-row">
-        <button
-          class="media-add"
-          type="button"
-          aria-label="Добавить изображение"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-        </button>
-
-        <button
-          class="media-add"
-          type="button"
-          aria-label="Добавить видео"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-        </button>
+        <div class="molecule-preview">
+          <img
+            src="{{#if draft}}{{draft.imgSrc}}{{else}}{{placeholderImageUrl}}{{/if}}"
+            alt="Изображение раствора"
+            onerror="this.onerror=null; this.src='{{placeholderImageUrl}}';"
+          />
+        </div>
+        <div class="molecule-preview">
+          <video
+            src="{{#if draft}}{{draft.vidSrc}}{{else}}{{placeholderVideoUrl}}{{/if}}"
+            poster="{{#if draft}}{{draft.imgSrc}}{{else}}{{placeholderImageUrl}}{{/if}}"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            onerror="if (!this.dataset.fallbackApplied) { this.dataset.fallbackApplied = 'true'; this.src = '{{placeholderVideoUrl}}'; this.poster = '{{placeholderImageUrl}}'; this.load(); }"
+          ></video>
+        </div>
       </div>
 
       <input
@@ -43,34 +47,50 @@
         name="name"
         placeholder="Название вещества"
         value="{{draft.name}}"
+        required
+        {{#if draft}}readonly{{/if}}
       />
 
-      <input
-        class="chem-input"
-        type="number"
-        name="mass"
-        placeholder="Масса, г"
-        value="{{draft.mass}}"
-        min="0"
-        step="any"
-      />
+      {{#if draft}}
+        <textarea
+          class="chem-input description-input"
+          name="shortDescription"
+          placeholder="Краткое описание раствора"
+          required
+        >{{draft.shortDescription}}</textarea>
 
-      <input
-        class="chem-input"
-        type="number"
-        name="concentration"
-        placeholder="Концентрация, %"
-        value="{{draft.concentration}}"
-        min="0"
-        max="100"
-        step="any"
-      />
+        <input
+          class="chem-input"
+          type="number"
+          name="mass"
+          placeholder="Масса, г"
+          value="{{draft.mass}}"
+          min="0"
+          step="any"
+          required
+        />
 
+        <input
+          class="chem-input"
+          type="number"
+          name="concentration"
+          placeholder="Концентрация, %"
+          value="{{draft.concentration}}"
+          min="0"
+          max="100"
+          step="any"
+          required
+        />
+      {{/if}}
+
+      <div class="add-bar">
+        {{#if draft}}
+          <button type="submit" class="add-button">Опубликовать</button>
+        {{else}}
+          <button type="submit" class="add-button">Далее</button>
+        {{/if}}
+      </div>
     </form>
-
-    <div class="add-bar">
-      <button type="button" class="add-button">Добавить</button>
-    </div>
   </div>
   {{> nav}}
 </div>

@@ -1,5 +1,5 @@
 :root {
-  --accent: #ed1b3f;
+  --accent: #e02342;
   --accent-hover: #d91435;
   --page-bg: #1d1d1d;
   --phone-bg: #f5f5f5;
@@ -705,4 +705,73 @@ button:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Lab 2: keep the original two-column cards and add deletion below each card. */
+.chem-card-shell {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.chem-card-shell > .chem-card {
+  align-self: stretch;
+  width: 100%;
+}
+
+.delete-form {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.delete-button {
+  padding: 4px 9px;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: var(--accent-hover);
+}
+
+.molecule-preview video {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.description-input {
+  height: 64px;
+  min-height: 64px;
+  resize: vertical;
+}
+
+.like-display {
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.filter-error {
+  margin: 0 0 2px;
+  padding: 9px 10px;
+  color: var(--accent);
+  background: #fff1f3;
+  border: 1px solid rgb(237 27 63 / 22%);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
 }

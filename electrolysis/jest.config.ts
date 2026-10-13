@@ -25,6 +25,7 @@ const config: Config = {
   ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '<rootDir>/test/'],
 };
 
 export default config;
