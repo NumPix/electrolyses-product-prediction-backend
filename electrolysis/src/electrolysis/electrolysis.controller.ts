@@ -10,6 +10,7 @@ export class ElectrolysisController {
         mass?: number;
         concentration?: number;
         imgSrc: string;
+        vidSrc: string;
         status: string;
     }[] = [
             {
@@ -19,6 +20,7 @@ export class ElectrolysisController {
                 mass: 250,
                 concentration: 70,
                 imgSrc: 'k2so4.jpg',
+                vidSrc: 'k2so4.mp4',
                 status: 'Опубликован',
             },
             {
@@ -28,6 +30,7 @@ export class ElectrolysisController {
                 mass: 135,
                 concentration: 45,
                 imgSrc: 'nahco3.jpg',
+                vidSrc: 'nahco3.mp4',
                 status: 'Опубликован',
             },
             {
@@ -36,7 +39,8 @@ export class ElectrolysisController {
                 name: 'Хлорид тетраамминмеди(II)',
                 mass: 502,
                 concentration: 40,
-                imgSrc: 'cu-nh3-4-cl2.jpg',
+                imgSrc: 'cunh34cl2.jpg',
+                vidSrc: 'cunh34cl2.mp4',
                 status: 'Опубликован',
             },
             {
@@ -44,6 +48,7 @@ export class ElectrolysisController {
                 formula: 'CuSO₄',
                 name: 'Сульфат меди(II)',
                 imgSrc: 'cuso4.jpg',
+                vidSrc: 'cuso4.mp4',
                 status: 'Черновик',
             },
             {
@@ -51,6 +56,7 @@ export class ElectrolysisController {
                 formula: 'NaCl',
                 name: 'Хлорид натрия',
                 imgSrc: 'nacl.jpg',
+                vidSrc: 'nacl.mp4',
                 status: 'Удален',
             },
         ];
@@ -79,7 +85,7 @@ export class ElectrolysisController {
         { compoundId: 2, userId: 2381 },
     ];
 
-    private readonly minIOSrc = 'http://localhost:9000/electrolysis/';
+    private readonly minIOSrc = 'http://localhost:9000/media/';
     private readonly host = 'http://localhost:3000/electrolysis/';
 
     @Get('feed/:id')
@@ -101,6 +107,7 @@ export class ElectrolysisController {
         const item = {
             ...compound,
             imgSrc: this.minIOSrc + compound.imgSrc,
+            vidSrc: this.minIOSrc + compound.vidSrc,
             likes: this.compoundLikes.filter(
                 (like) => like.compoundId === compound.id,
             ).length,

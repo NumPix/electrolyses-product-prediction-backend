@@ -6,11 +6,16 @@
 <div class="phone">
   <div class="screen screen--flush">
     <article class="chem-feed-card">
-      <img
-        class="chem-feed-image"
-        src="{{item.imgSrc}}"
-        alt="{{item.formula}}"
-      />
+      <video
+        class="chem-feed-video"
+        src="{{item.vidSrc}}"
+        poster="{{item.imgSrc}}"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+      ></video>
 
       <div class="feed-bottom">
         <section class="feed-info">
@@ -28,8 +33,8 @@
 
         <div class="feed-actions">
           <button class="round-action" type="button" aria-label="В избранное">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 21s-8-5.5-8-11a5 5 0 0110-1 5 5 0 0110 1c0 5.5-8 11-8 11z"/>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.3 8.8c0 5-8.3 10-8.3 10s-8.3-5-8.3-10a4.5 4.5 0 018.3-2.4 4.5 4.5 0 018.3 2.4z"/>
             </svg>
           </button>
 
