@@ -302,40 +302,142 @@ a {
 }
 
 .filter {
+  display: flex;
   flex: 1 1 0;
+  flex-direction: column;
+  gap: 3px;
   width: 0;
   min-width: 0;
-  height: 34px;
-  padding: 6px 9px;
+  padding: 5px 9px 4px;
   color: #222;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: var(--shadow);
-  outline: none;
   font-size: 12px;
   font-weight: 500;
   text-align: left;
-  appearance: textfield;
-  -moz-appearance: textfield;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-.filter::placeholder {
+.filter-caption {
   color: #777;
-  opacity: 1;
+  line-height: 1.2;
 }
 
-.filter:focus {
+.filter:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgb(237 27 63 / 12%);
 }
 
-.filter::-webkit-inner-spin-button,
-.filter::-webkit-outer-spin-button {
+.filter-range {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.filter-track {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+/* Two range inputs on one track: only the thumbs catch the pointer.
+   The line is drawn by the thumbs themselves (border-image), so it follows them without JavaScript:
+   the "to" thumb paints the accent colour on its left and the track colour on its right,
+   the "from" thumb lies on top and covers everything on its left with the track colour. */
+.filter-sliders {
+  position: relative;
+  display: block;
+  height: 16px;
+}
+
+.filter-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
   margin: 0;
-  appearance: none;
+  overflow: hidden;
+  background: none;
+  outline: none;
+  pointer-events: none;
   -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-slider--min {
+  z-index: 1;
+  --slider-left: var(--line);
+  --slider-right: transparent;
+}
+
+.filter-slider--max {
+  --slider-left: var(--accent);
+  --slider-right: var(--line);
+}
+
+.filter-slider::-webkit-slider-runnable-track {
+  height: 16px;
+  background: none;
+  border: 0;
+}
+
+.filter-slider::-moz-range-track {
+  height: 16px;
+  background: none;
+  border: 0;
+}
+
+.filter-slider::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  border-image: linear-gradient(90deg, var(--slider-left) 50%, var(--slider-right) 0) 0 1 / calc(50% - 2px) 100vw / 0 100vw;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  border-image: linear-gradient(90deg, var(--slider-left) 50%, var(--slider-right) 0) 0 1 / calc(50% - 2px) 100vw / 0 100vw;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.filter-slider:focus-visible::-webkit-slider-thumb {
+  background: var(--accent-hover);
+}
+
+.filter-slider:focus-visible::-moz-range-thumb {
+  background: var(--accent-hover);
+}
+
+.filter-scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  color: #777;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.filter-value {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .filter-btn {
@@ -436,7 +538,7 @@ a {
   display: none;
 }
 
-.mass-badge {
+.ratio-badge {
   position: absolute;
   z-index: 2;
   top: 5px;

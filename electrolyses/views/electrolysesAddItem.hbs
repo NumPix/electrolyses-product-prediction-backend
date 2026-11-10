@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="ru">
-{{> head}}
+{{> electrolysesHead}}
 <body>
 <div class="phone">
   <div class="screen add-screen">
@@ -48,9 +48,9 @@
       <input
         class="chem-input"
         type="number"
-        name="mass"
-        placeholder="Масса, г"
-        value="{{draft.mass}}"
+        name="anodeCathodeMassRatio"
+        placeholder="Соотношение масс анода и катода"
+        value="{{draft.anodeCathodeMassRatio}}"
         min="0"
         step="any"
       />
@@ -72,7 +72,7 @@
       <button type="button" class="add-button">Добавить</button>
     </div>
   </div>
-  {{> nav}}
+  {{> electrolysesNav}}
 </div>
 </body>
 </html>

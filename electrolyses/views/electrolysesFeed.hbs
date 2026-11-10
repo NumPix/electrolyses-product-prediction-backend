@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="ru">
-{{> head}}
+{{> electrolysesHead}}
 <body>
 <div class="phone">
   <div class="screen screen--flush">
@@ -22,8 +22,8 @@
           <h2>{{item.formula}}</h2>
           <p>{{item.name}}</p>
 
-          {{#if item.mass}}
-            <p>Масса: {{item.mass}} г</p>
+          {{#if item.anodeCathodeMassRatio}}
+            <p>Соотношение массы анода к массе катода: {{item.anodeCathodeMassRatio}}</p>
           {{/if}}
 
           {{#if item.concentration}}
@@ -51,7 +51,7 @@
       </div>
     </article>
   </div>
-  {{> nav}}
+  {{> electrolysesNav}}
 </div>
 </body>
 </html>

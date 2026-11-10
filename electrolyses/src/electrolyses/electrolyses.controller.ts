@@ -1,13 +1,12 @@
-
 import { Controller, Get, Param, Query, Render } from '@nestjs/common';
 
-@Controller('electrolysis')
-export class ElectrolysisController {
+@Controller('electrolyses')
+export class ElectrolysesController {
     private readonly compounds: {
         id: number;
         formula: string;
         name: string;
-        mass?: number;
+        anodeCathodeMassRatio?: number;
         concentration?: number;
         imgSrc: string;
         vidSrc: string;
@@ -17,7 +16,7 @@ export class ElectrolysisController {
                 id: 0,
                 formula: 'K₂SO₄',
                 name: 'Сульфат калия',
-                mass: 250,
+                anodeCathodeMassRatio: 7.94, // m(O₂) / m(H₂)
                 concentration: 70,
                 imgSrc: 'k2so4.jpg',
                 vidSrc: 'k2so4.mp4',
@@ -27,7 +26,7 @@ export class ElectrolysisController {
                 id: 1,
                 formula: 'NaHCO₃',
                 name: 'Гидрокарбонат натрия',
-                mass: 135,
+                anodeCathodeMassRatio: 7.94, // m(O₂) / m(H₂)
                 concentration: 45,
                 imgSrc: 'nahco3.jpg',
                 vidSrc: 'nahco3.mp4',
@@ -37,7 +36,7 @@ export class ElectrolysisController {
                 id: 2,
                 formula: '[Cu(NH₃)₄]Cl₂',
                 name: 'Хлорид тетраамминмеди(II)',
-                mass: 502,
+                anodeCathodeMassRatio: 1.12, // m(Cl₂) / m(Cu)
                 concentration: 40,
                 imgSrc: 'cunh34cl2.jpg',
                 vidSrc: 'cunh34cl2.mp4',
@@ -86,10 +85,12 @@ export class ElectrolysisController {
     ];
 
     private readonly minIOSrc = 'http://localhost:9000/media/';
-    private readonly host = 'http://localhost:3000/electrolysis/';
+    private readonly host = 'http://localhost:3000/electrolyses/';
+
+    private readonly anodeCathodeMassRatioSliderMax = 40;
 
     @Get('feed/:id')
-    @Render('feed')
+    @Render('electrolysesFeed')
     getCompoundById(@Param('id') id: string) {
         const publishedCompounds = this.compounds.filter((compound) => compound.status === 'Опубликован');
 
@@ -121,7 +122,7 @@ export class ElectrolysisController {
 
 
     @Get('add')
-    @Render('add-item')
+    @Render('electrolysesAddItem')
     getAddPage() {
         const draft = this.compounds.find(
             (compound) => compound.status == 'Черновик',
@@ -131,13 +132,17 @@ export class ElectrolysisController {
     }
 
     @Get('catalog')
-    @Render('catalog')
+    @Render('electrolysesCatalog')
     getCardsPage(
-        @Query('minMass') minRaw?: string,
-        @Query('maxMass') maxRaw?: string,
+        @Query('minAnodeCathodeMassRatio') minRaw?: string,
+        @Query('maxAnodeCathodeMassRatio') maxRaw?: string,
     ) {
-        const min = this.parseNumber(minRaw);
-        const max = this.parseNumber(maxRaw);
+        let min = this.parseNumber(minRaw);
+        let max = this.parseNumber(maxRaw);
+
+        if (min !== null && max !== null && min > max) {
+            [min, max] = [max, min];
+        }
 
         const hasFilter = min !== null || max !== null;
 
@@ -146,10 +151,10 @@ export class ElectrolysisController {
             .filter((compound) => {
                 if (!hasFilter) return true;
 
-                if (compound.mass === undefined || compound.mass === null) return false;
+                if (compound.anodeCathodeMassRatio === undefined || compound.anodeCathodeMassRatio === null) return false;
 
-                if (min !== null && compound.mass < min) return false;
-                if (max !== null && compound.mass > max) return false;
+                if (min !== null && compound.anodeCathodeMassRatio < min) return false;
+                if (max !== null && compound.anodeCathodeMassRatio > max) return false;
 
                 return true;
             })
@@ -164,8 +169,12 @@ export class ElectrolysisController {
         return {
             items,
             filters: {
-                minMass: minRaw ?? '',
-                maxMass: maxRaw ?? '',
+                minAnodeCathodeMassRatio: min ?? 0,
+                maxAnodeCathodeMassRatio: max ?? this.anodeCathodeMassRatioSliderMax,
+                anodeCathodeMassRatioSliderMax: this.anodeCathodeMassRatioSliderMax,
+                anodeCathodeMassRatioScale: [0, 0.25, 0.5, 0.75, 1].map(
+                    (part) => part * this.anodeCathodeMassRatioSliderMax,
+                ),
             },
         };
     }
