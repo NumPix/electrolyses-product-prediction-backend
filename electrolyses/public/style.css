@@ -1,0 +1,879 @@
+:root {
+  --accent: #e02342;
+  --accent-hover: #d91435;
+  --page-bg: #1d1d1d;
+  --phone-bg: #f5f5f5;
+  --surface: #ffffff;
+  --line: #e2e2e2;
+  --text: #111111;
+  --muted: #a8a8a8;
+  --shadow: 0 1px 4px rgb(0 0 0 / 12%);
+  --phone-radius: 10px;
+  --control-radius: 10px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+/* Device frame */
+.phone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 390px;
+  width: 390px;
+  height: 850px;
+  min-height: 850px;
+  overflow: hidden;
+  background: var(--phone-bg);
+  border: 1px solid #c9c9c9;
+  border-radius: var(--phone-radius);
+  box-shadow: 0 2px 0 rgb(255 255 255 / 18%);
+}
+
+.screen {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen::-webkit-scrollbar {
+  display: none;
+}
+
+.screen--flush {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.bottom-nav {
+  z-index: 5;
+  display: flex;
+  flex: 0 0 43px;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  width: 100%;
+  height: 43px;
+  padding: 4px 14px;
+  background: #f7f7f7;
+  border-top: 1px solid #dedede;
+}
+
+.nav-btn {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  max-width: 82px;
+  height: 34px;
+  padding: 0;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 18px;
+  text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.nav-btn:hover {
+  background: var(--accent-hover);
+}
+
+.nav-btn:active {
+  transform: scale(0.96);
+}
+
+.nav-btn svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chem-feed-card {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #087db6;
+  isolation: isolate;
+}
+
+.chem-feed-card::before,
+.chem-card-image::before,
+.molecule-preview::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(ellipse at 20% 18%, rgb(255 255 255 / 19%), transparent 28%),
+    radial-gradient(ellipse at 80% 70%, rgb(3 48 91 / 35%), transparent 38%),
+    linear-gradient(145deg, #075681 0%, #149bd8 52%, #07537d 100%);
+}
+
+.chem-feed-video {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Empty src attributes otherwise may cause the browser to request the page itself. */
+.chem-feed-video[src=""] {
+  display: none;
+}
+
+.feed-bottom {
+  position: absolute;
+  z-index: 2;
+  right: 6px;
+  bottom: 6px;
+  left: 12px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.feed-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 10px 7px;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid rgb(0 0 0 / 5%);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.feed-info h2 {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.feed-info p {
+  margin: 4px 0 0;
+  color: #252525;
+  font-size: 11px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.feed-actions {
+  display: flex;
+  flex: 0 0 34px;
+  flex-direction: column;
+  gap: 7px;
+  width: 34px;
+}
+
+.round-action {
+  display: flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  box-sizing: border-box;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 9px;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.round-action:hover {
+  background: var(--accent-hover);
+}
+
+.round-action:active {
+  transform: scale(0.96);
+}
+
+.round-action svg {
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.down-action {
+  flex: 1 1 auto;
+  min-height: 42px;
+}
+
+.down-action svg {
+  fill: #fff;
+  stroke: #fff;
+}
+
+.catalog-screen {
+  gap: 8px;
+  padding: 8px 10px 10px;
+}
+
+.filters {
+  position: sticky;
+  z-index: 4;
+  top: -8px;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin: -8px -10px 0;
+  padding: 10px 10px 7px;
+  background: var(--phone-bg);
+}
+
+.filter {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 3px;
+  width: 0;
+  min-width: 0;
+  padding: 5px 9px 4px;
+  color: #222;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.filter-caption {
+  color: #777;
+  line-height: 1.2;
+}
+
+.filter:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgb(237 27 63 / 12%);
+}
+
+.filter-range {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.filter-track {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+/* Two range inputs on one track: only the thumbs catch the pointer.
+   The line is drawn by the thumbs themselves (border-image), so it follows them without JavaScript:
+   the "to" thumb paints the accent colour on its left and the track colour on its right,
+   the "from" thumb lies on top and covers everything on its left with the track colour. */
+.filter-sliders {
+  position: relative;
+  display: block;
+  height: 16px;
+}
+
+.filter-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  overflow: hidden;
+  background: none;
+  outline: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-slider--min {
+  z-index: 1;
+  --slider-left: var(--line);
+  --slider-right: transparent;
+}
+
+.filter-slider--max {
+  --slider-left: var(--accent);
+  --slider-right: var(--line);
+}
+
+.filter-slider::-webkit-slider-runnable-track {
+  height: 16px;
+  background: none;
+  border: 0;
+}
+
+.filter-slider::-moz-range-track {
+  height: 16px;
+  background: none;
+  border: 0;
+}
+
+.filter-slider::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  border-image: linear-gradient(90deg, var(--slider-left) 50%, var(--slider-right) 0) 0 1 / calc(50% - 2px) 100vw / 0 100vw;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  border-image: linear-gradient(90deg, var(--slider-left) 50%, var(--slider-right) 0) 0 1 / calc(50% - 2px) 100vw / 0 100vw;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.filter-slider:focus-visible::-webkit-slider-thumb {
+  background: var(--accent-hover);
+}
+
+.filter-slider:focus-visible::-moz-range-thumb {
+  background: var(--accent-hover);
+}
+
+.filter-scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  color: #777;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.filter-value {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.filter-btn {
+  display: flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.filter-btn:hover {
+  background: var(--accent-hover);
+}
+
+.filter-btn:active {
+  transform: scale(0.96);
+}
+
+.filter-btn svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chem-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  align-items: start;
+  gap: 9px;
+  min-width: 0;
+}
+
+.chem-card {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid #e4e4e4;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chem-card:hover {
+  box-shadow: 0 3px 9px rgb(0 0 0 / 14%);
+  transform: translateY(-1px);
+}
+
+.chem-card:active {
+  transform: scale(0.985);
+}
+
+.chem-card-image {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 0.86;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: #087db6;
+}
+
+.chem-card--tall .chem-card-image {
+  aspect-ratio: 0.72;
+}
+
+.chem-card-image img {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.chem-card-image img[src=""] {
+  display: none;
+}
+
+.ratio-badge {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  left: 5px;
+  max-width: calc(100% - 10px);
+  padding: 4px 7px;
+  overflow: hidden;
+  color: #111;
+  background: #fff;
+  border-radius: 7px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 15%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.likes-badge {
+  position: absolute;
+  z-index: 2;
+  right: 4px;
+  bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: calc(100% - 8px);
+  padding: 2px 5px;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.likes-badge svg {
+  display: block;
+  flex: 0 0 15px;
+  width: 15px;
+  height: 15px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chem-card-title {
+  min-width: 0;
+  padding: 5px 6px 6px;
+  color: #111;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.chem-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 26px 10px;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.add-screen {
+  gap: 8px;
+  padding: 12px 14px 8px;
+}
+
+.chem-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.chem-input {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 6px 10px;
+  color: #222;
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 16px;
+  line-height: 1.2;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.chem-input::placeholder {
+  color: #b5b5b5;
+  opacity: 1;
+}
+
+.chem-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgb(237 27 63 / 10%);
+}
+
+.media-row,
+.chem-form > div:has(> .media-add) {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  width: 100%;
+  height: clamp(145px, 34vh, 210px);
+  min-height: 130px;
+}
+
+.molecule-preview {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  overflow: hidden;
+  background: #087db6;
+  border-radius: 9px;
+}
+
+.molecule-preview img {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.molecule-preview img[src=""] {
+  display: none;
+}
+
+.media-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  color: var(--accent);
+  background: #f5f5f5;
+  border: 3px solid var(--accent);
+  border-radius: 13px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.media-add:hover {
+  background: #fff;
+}
+
+.media-add:active {
+  transform: scale(0.985);
+}
+
+.media-add svg {
+  display: block;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.media-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+  border: 3px solid var(--accent);
+  border-radius: 13px;
+  background: #f5f5f5;
+}
+
+.compound-name {
+  height: 64px;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.add-bar {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  padding: 0 0 2px;
+}
+
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 13px;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.add-button:hover {
+  background: var(--accent-hover);
+}
+
+.add-button:active {
+  transform: scale(0.97);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 420px) {
+  body {
+    justify-content: flex-start;
+  }
+
+  .media-row,
+  .chem-form > div:has(> .media-add) {
+    height: clamp(145px, 34vh, 210px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Lab 2: keep the original two-column cards and add deletion below each card. */
+.chem-card-shell {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.chem-card-shell > .chem-card {
+  align-self: stretch;
+  width: 100%;
+}
+
+.delete-form {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.delete-button {
+  padding: 4px 9px;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: var(--accent-hover);
+}
+
+.molecule-preview video {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Photo and video one under the other on the add page. */
+.media-row {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: clamp(145px, 34vh, 210px);
+  height: auto;
+}
+
+.description-input {
+  height: 64px;
+  min-height: 64px;
+  resize: vertical;
+}
+
+.like-display {
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.filter-error {
+  margin: 0 0 2px;
+  padding: 9px 10px;
+  color: var(--accent);
+  background: #fff1f3;
+  border: 1px solid rgb(237 27 63 / 22%);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}

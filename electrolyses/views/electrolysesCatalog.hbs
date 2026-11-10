@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+{{> electrolysesHead}}
+<body>
+<div class="phone">
+  <div class="screen catalog-screen">
+    <form class="filters" method="get" action="/electrolyses/catalog">
+      <div class="filter">
+        <span class="filter-caption">Соотношение массы анода к массе катода</span>
+        <span class="filter-range">
+          <span class="filter-track">
+            <span class="filter-sliders">
+              <input
+                type="range"
+                class="filter-slider filter-slider--min"
+                name="minAnodeCathodeMassRatio"
+                min="0"
+                max="{{filters.anodeCathodeMassRatioSliderMax}}"
+                step="0.1"
+                value="{{filters.minAnodeCathodeMassRatio}}"
+                aria-label="Соотношение массы анода к массе катода: от"
+              />
+              <input
+                type="range"
+                class="filter-slider filter-slider--max"
+                name="maxAnodeCathodeMassRatio"
+                min="0"
+                max="{{filters.anodeCathodeMassRatioSliderMax}}"
+                step="0.1"
+                value="{{filters.maxAnodeCathodeMassRatio}}"
+                aria-label="Соотношение массы анода к массе катода: до"
+              />
+            </span>
+            <span class="filter-scale" aria-hidden="true">
+              {{#each filters.anodeCathodeMassRatioScale}}
+                <span>{{this}}</span>
+              {{/each}}
+            </span>
+          </span>
+          <span class="filter-value">от {{filters.minAnodeCathodeMassRatio}} до {{filters.maxAnodeCathodeMassRatio}}</span>
+        </span>
+      </div>
+      <button type="submit" class="filter-btn" aria-label="Применить фильтр">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </form>
+
+    {{#if error}}
+      <p class="filter-error" role="alert">{{error}}</p>
+    {{/if}}
+
+    <div class="chem-grid">
+      {{#each items}}
+        <div class="chem-card-shell">
+          <a
+            class="chem-card {{#if this.tall}}chem-card--tall{{/if}}"
+            href="/electrolyses/feed/{{this.id}}"
+          >
+            <div class="chem-card-image">
+              <img
+                src="{{this.imgSrc}}"
+                alt="{{this.name}}"
+                loading="lazy"
+                onerror="this.onerror=null; this.src='{{../placeholderImageUrl}}';"
+              />
+              {{#if this.anodeCathodeMassRatio}}
+                <span class="ratio-badge">{{this.anodeCathodeMassRatio}}</span>
+              {{/if}}
+              <span class="likes-badge">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 21s-8-5.5-8-11a5 5 0 0110-1 5 5 0 0110 1c0 5.5-8 11-8 11z"/>
+                </svg>
+                {{this.likes}}
+              </span>
+            </div>
+            <div class="chem-card-title">{{this.name}}</div>
+          </a>
+
+          <form class="delete-form" action="/electrolyses/delete" method="post">
+            <input type="hidden" name="compoundId" value="{{this.id}}" />
+            <button type="submit" class="delete-button">Удалить</button>
+          </form>
+        </div>
+      {{else}}
+        <p class="chem-empty">Ничего не найдено</p>
+      {{/each}}
+    </div>
+  </div>
+  {{> electrolysesNav}}
+</div>
+</body>
+</html>
