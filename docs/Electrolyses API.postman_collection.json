@@ -1,0 +1,337 @@
+{
+  "info": {
+    "_postman_id": "fe1dbae5-0c8b-4b87-91b4-79040ba19699",
+    "name": "Electrolyses API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24936465"
+  },
+  "item": [
+    {
+      "name": "Услуги",
+      "item": [
+        {
+          "name": "1. Список услуг с фильтрацией",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses?minAnodeCathodeMassRatio=5&maxAnodeCathodeMassRatio=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses"
+              ],
+              "query": [
+                {
+                  "key": "minAnodeCathodeMassRatio",
+                  "value": "5",
+                  "description": "Соотношение массы анода к массе катода, от"
+                },
+                {
+                  "key": "maxAnodeCathodeMassRatio",
+                  "value": "10",
+                  "description": "Соотношение массы анода к массе катода, до"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Лента без id (первая карточка)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/feed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "feed"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Лента по id (следующая)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/feed/{{compoundId}}?next=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "feed",
+                "{{compoundId}}"
+              ],
+              "query": [
+                {
+                  "key": "next",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Получить черновик",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('compoundId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/draft",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "draft"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Создать черновик",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// id созданной услуги записывается в compoundId для публикации, лайка и удаления\nif (pm.response.code === 201) {\n    pm.collectionVariables.set('compoundId', pm.response.json().id);\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "compoundName",
+                  "value": "Сульфат натрия",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/Light Flight PC/Downloads/default-compound.jpg"
+                  ]
+                },
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/Light Flight PC/Downloads/default-compound.mp4"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/draft",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "draft"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Опубликовать черновик",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shortDescription\": \"Раствор сульфата натрия. При электролизе на катоде выделяется водород, на аноде — кислород.\",\n  \"anodeCathodeMassRatio\": 7.94,\n  \"concentrationPercent\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/draft",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "draft"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Поставить лайк",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"like\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/{{compoundId}}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "{{compoundId}}",
+                "like"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Удалить",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/electrolyses/{{compoundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "electrolyses",
+                "{{compoundId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Пользователи",
+      "item": [
+        {
+          "name": "8. Регистрация",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Новый пользователь\",\n  \"password\": \"secret123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/registration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "registration"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. Аутентификация (заглушка)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/authentication",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "authentication"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10. Деавторизация (заглушка)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/deauthorization",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "deauthorization"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "compoundId",
+      "value": "0"
+    }
+  ]
+}
