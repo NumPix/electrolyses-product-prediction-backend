@@ -6,12 +6,12 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { Compound } from './compound.entity';
-import { ElectrolysesUser } from './electrolyses-user.entity';
+import { ElectrolyteSolution } from './electrolyte-solution.entity';
+import { User } from './user.entity';
 
 @Entity('electrolyte_solution_likes')
 @Unique('uq_electrolyte_solution_likes_compound_user', ['compoundId', 'userId'])
-export class CompoundLike {
+export class ElectrolyteSolutionLike {
   @PrimaryGeneratedColumn({ type: 'integer' })
   id!: number;
 
@@ -21,17 +21,17 @@ export class CompoundLike {
   @Column({ type: 'integer', name: 'user_id' })
   userId!: number;
 
-  @ManyToOne(() => Compound, (compound) => compound.likes, {
+  @ManyToOne(() => ElectrolyteSolution, (electrolyteSolution) => electrolyteSolution.likes, {
     nullable: false,
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'compound_id' })
-  compound!: Compound;
+  electrolyteSolution!: ElectrolyteSolution;
 
-  @ManyToOne(() => ElectrolysesUser, (user) => user.likes, {
+  @ManyToOne(() => User, (user) => user.likes, {
     nullable: false,
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'user_id' })
-  user!: ElectrolysesUser;
+  user!: User;
 }

@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
-import { Compound } from '../src/electrolyses/entities/compound.entity';
-import { ElectrolysesUser } from '../src/electrolyses/entities/electrolyses-user.entity';
-import { CompoundLike } from '../src/electrolyses/entities/compound-like.entity';
-import { PLACEHOLDER_IMAGE_KEY, PLACEHOLDER_VIDEO_KEY } from '../src/electrolyses/electrolyses.service';
+import { ElectrolyteSolution } from '../src/entities/electrolyte-solution.entity';
+import { User } from '../src/entities/user.entity';
+import { ElectrolyteSolutionLike } from '../src/entities/electrolyte-solution-like.entity';
+import { DEFAULT_VIDEO_KEY } from '../src/electrolyses/electrolyte-solution-media';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -11,7 +11,7 @@ const dataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Compound, ElectrolysesUser, CompoundLike],
+  entities: [ElectrolyteSolution, User, ElectrolyteSolutionLike],
   synchronize: false,
 });
 
@@ -29,7 +29,7 @@ const compounds = [
     status: 'published',
     imgSrc: 'k2so4.jpg',
     vidSrc: 'k2so4.mp4',
-    anodeCathodeMassRatio: 7.94, // m(O₂) / m(H₂)
+    anodeCathodeMassRatio: 7.94,
     concentration: 70,
     formedAt: new Date(),
     creatorId: 1,
@@ -41,10 +41,10 @@ const compounds = [
     status: 'published',
     imgSrc: 'nahco3.jpg',
     vidSrc: 'nahco3.mp4',
-    anodeCathodeMassRatio: 7.94, // m(O₂) / m(H₂)
+    anodeCathodeMassRatio: 7.94,
     concentration: 45,
     formedAt: new Date(),
-    creatorId: 1,
+    creatorId: 2941,
   },
   {
     id: 2,
@@ -53,7 +53,7 @@ const compounds = [
     status: 'published',
     imgSrc: 'cunh34cl2.jpg',
     vidSrc: 'cunh34cl2.mp4',
-    anodeCathodeMassRatio: 1.12, // m(Cl₂) / m(Cu)
+    anodeCathodeMassRatio: 1.12,
     concentration: 40,
     formedAt: new Date(),
     creatorId: 1,
@@ -64,11 +64,11 @@ const compounds = [
     description: null,
     status: 'draft',
     imgSrc: 'cuso4.jpg',
-    vidSrc: PLACEHOLDER_VIDEO_KEY,
+    vidSrc: DEFAULT_VIDEO_KEY,
     anodeCathodeMassRatio: null,
     concentration: null,
     formedAt: null,
-    creatorId: 1,
+    creatorId: 1837,
   },
   {
     id: 4,

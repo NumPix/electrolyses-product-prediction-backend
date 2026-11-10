@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ElectrolyteSolution } from '../entities/electrolyte-solution.entity';
+import { ElectrolyteSolutionLike } from '../entities/electrolyte-solution-like.entity';
+import { MinioService } from '../minio/minio.service';
+import { ElectrolysesSerializer } from './electrolyses.serializer';
 import { ElectrolysesService } from './electrolyses.service';
-import { Compound } from './entities/compound.entity';
-import { ElectrolysesUser } from './entities/electrolyses-user.entity';
-import { CompoundLike } from './entities/compound-like.entity';
 
 describe('ElectrolysesService', () => {
   let service: ElectrolysesService;
@@ -12,9 +13,10 @@ describe('ElectrolysesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ElectrolysesService,
-        { provide: getRepositoryToken(Compound), useValue: {} },
-        { provide: getRepositoryToken(ElectrolysesUser), useValue: {} },
-        { provide: getRepositoryToken(CompoundLike), useValue: {} },
+        { provide: getRepositoryToken(ElectrolyteSolution), useValue: {} },
+        { provide: getRepositoryToken(ElectrolyteSolutionLike), useValue: {} },
+        { provide: MinioService, useValue: {} },
+        { provide: ElectrolysesSerializer, useValue: {} },
       ],
     }).compile();
 

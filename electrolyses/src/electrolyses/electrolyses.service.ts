@@ -1,178 +1,311 @@
 import {
   BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MoreThan, Not, Repository } from 'typeorm';
 import {
-  MoreThanOrEqual,
-  Repository,
-} from 'typeorm';
-import { Compound, CompoundStatus } from './entities/compound.entity';
-import { ElectrolysesUser } from './entities/electrolyses-user.entity';
-import { CompoundLike } from './entities/compound-like.entity';
-
-export const PLACEHOLDER_IMAGE_KEY = 'default-compound.jpg';
-export const PLACEHOLDER_VIDEO_KEY = 'default-compound.mp4';
+  ElectrolyteSolution,
+  ElectrolyteSolutionStatus,
+} from '../entities/electrolyte-solution.entity';
+import { ElectrolyteSolutionLike } from '../entities/electrolyte-solution-like.entity';
+import { getCurrentUser } from '../users/current-user';
+import { MinioService } from '../minio/minio.service';
+import { CreateElectrolyteSolutionDto } from './dto/create-electrolyte-solution.dto';
+import { ElectrolyteSolutionFiltersDto } from './dto/electrolyte-solution-filters.dto';
+import type {
+  ElectrolyteSolutionMediaFiles,
+  UploadedMediaFile,
+} from './dto/electrolyte-solution-media-files';
+import {
+  ElectrolyteSolutionCardDto,
+  ElectrolyteSolutionDto,
+  ElectrolyteSolutionFeedDto,
+  ElectrolyteSolutionLikesDto,
+} from './dto/electrolyte-solution-response.dto';
+import { LikeElectrolyteSolutionDto } from './dto/like-electrolyte-solution.dto';
+import { PublishElectrolyteSolutionDto } from './dto/publish-electrolyte-solution.dto';
+import {
+  IMAGE_EXTENSIONS,
+  MAX_IMAGE_SIZE,
+  VIDEO_EXTENSIONS,
+  generateMediaKey,
+} from './electrolyte-solution-media';
+import { ElectrolysesSerializer } from './electrolyses.serializer';
 
 @Injectable()
 export class ElectrolysesService {
   constructor(
-    @InjectRepository(Compound)
-    private readonly compounds: Repository<Compound>,
-    @InjectRepository(ElectrolysesUser)
-    private readonly users: Repository<ElectrolysesUser>,
-    @InjectRepository(CompoundLike)
-    private readonly likes: Repository<CompoundLike>,
+    @InjectRepository(ElectrolyteSolution)
+    private readonly electrolyses: Repository<ElectrolyteSolution>,
+    @InjectRepository(ElectrolyteSolutionLike)
+    private readonly likes: Repository<ElectrolyteSolutionLike>,
+    private readonly minio: MinioService,
+    private readonly serializer: ElectrolysesSerializer,
   ) {}
 
-  async getPublishedCompounds(
-    minAnodeCathodeMassRatio: number | null,
-    maxAnodeCathodeMassRatio: number | null,
-  ): Promise<Compound[]> {
-    const query = this.compounds
-      .createQueryBuilder('compound')
-      .leftJoinAndSelect('compound.likes', 'likes')
-      .where('compound.status = :status', {
-        status: CompoundStatus.Published,
-      });
+  async getPublishedElectrolyses(
+    filters: ElectrolyteSolutionFiltersDto,
+  ): Promise<ElectrolyteSolutionCardDto[]> {
+    const currentUser = getCurrentUser();
+    let min = filters.minAnodeCathodeMassRatio;
+    let max = filters.maxAnodeCathodeMassRatio;
 
-    if (minAnodeCathodeMassRatio !== null) {
-      query.andWhere('compound.anodeCathodeMassRatio >= :minAnodeCathodeMassRatio', {
-        minAnodeCathodeMassRatio,
-      });
-    }
-    if (maxAnodeCathodeMassRatio !== null) {
-      query.andWhere('compound.anodeCathodeMassRatio <= :maxAnodeCathodeMassRatio', {
-        maxAnodeCathodeMassRatio,
-      });
+    if (min !== undefined && max !== undefined && min > max) {
+      [min, max] = [max, min];
     }
 
-    return query.orderBy('compound.id', 'ASC').getMany();
-  }
+    const query = this.electrolyses
+      .createQueryBuilder('electrolyteSolution')
+      .leftJoinAndSelect('electrolyteSolution.likes', 'electrolyteSolutionLike')
+      .where('electrolyteSolution.status = :status', {
+        status: ElectrolyteSolutionStatus.Published,
+      });
 
-  async getPublishedCompoundById(id: number): Promise<Compound | null> {
-    return this.compounds.findOne({
-      where: { id, status: CompoundStatus.Published },
-      relations: { likes: true },
-    });
-  }
-
-  async getFirstPublishedCompoundId(): Promise<number | null> {
-    const compound = await this.compounds.findOne({
-      where: { status: CompoundStatus.Published },
-      select: { id: true },
-      order: { id: 'ASC' },
-    });
-
-    return compound?.id ?? null;
-  }
-
-  async getNextPublishedCompoundId(currentId: number): Promise<number | null> {
-    const next = await this.compounds.findOne({
-      where: {
-        id: MoreThanOrEqual(currentId + 1),
-        status: CompoundStatus.Published,
-      },
-      select: { id: true },
-      order: { id: 'ASC' },
-    });
-
-    if (next) return next.id;
-    return this.getFirstPublishedCompoundId();
-  }
-
-  async getDraftByCreator(creatorId: number): Promise<Compound | null> {
-    return this.compounds.findOne({
-      where: {
-        status: CompoundStatus.Draft,
-        creator: { id: creatorId },
-      },
-      relations: { creator: true, likes: true },
-      order: { id: 'ASC' },
-    });
-  }
-
-  async addDraft(
-    creatorId: number,
-    input: { name: string; imgSrc: string; vidSrc: string },
-  ): Promise<Compound> {
-    const name = input.name?.trim();
-
-    if (!name) {
-      throw new BadRequestException('Укажите название вещества.');
+    if (min !== undefined) {
+      query.andWhere('electrolyteSolution.anodeCathodeMassRatio >= :min', { min });
+    }
+    if (max !== undefined) {
+      query.andWhere('electrolyteSolution.anodeCathodeMassRatio <= :max', { max });
     }
 
-    const existingDraft = await this.getDraftByCreator(creatorId);
-    if (existingDraft) return existingDraft;
+    const electrolyses = await query
+      .orderBy('electrolyteSolution.id', 'ASC')
+      .getMany();
 
-    const creator = await this.users.findOneBy({ id: creatorId });
-    if (!creator) {
+    return electrolyses.map((electrolyteSolution) =>
+      this.serializer.toCard(
+        electrolyteSolution,
+        electrolyteSolution.likes.length,
+        currentUser.id,
+      ),
+    );
+  }
+
+  async getElectrolyteSolutionFeed(
+    id: number | undefined,
+    next: boolean,
+  ): Promise<ElectrolyteSolutionFeedDto> {
+    const currentUser = getCurrentUser();
+    const electrolyteSolution = await this.findFeedElectrolyteSolution(id, next);
+
+    if (!electrolyteSolution) {
       throw new NotFoundException(
-        'Пользователь не найден. Сначала выполните npm run migrate.',
+        id === undefined ? 'Опубликованных растворов нет' : `Раствор с id ${id} не найден`,
       );
     }
 
-    const draft = this.compounds.create({
-      name,
-      shortDescription: null,
-      status: CompoundStatus.Draft,
-      imgSrc: input.imgSrc,
-      vidSrc: input.vidSrc,
-      anodeCathodeMassRatio: null,
-      concentration: null,
-      formedAt: null,
-      creator,
-    });
+    const [likes, likedByCurrentUser] = await Promise.all([
+      this.likes.countBy({ compoundId: electrolyteSolution.id }),
+      this.likes.existsBy({
+        compoundId: electrolyteSolution.id,
+        userId: currentUser.id,
+      }),
+    ]);
 
-    return this.compounds.save(draft);
+    return this.serializer.toFeed(electrolyteSolution, likes, likedByCurrentUser);
   }
 
-  async publishDraft(
-    creatorId: number,
-    input: { shortDescription: string; anodeCathodeMassRatio: number; concentration: number },
-  ): Promise<Compound> {
-    const shortDescription = input.shortDescription?.trim();
+  async getDraft(): Promise<ElectrolyteSolutionDto> {
+    const currentUser = getCurrentUser();
 
-    if (!shortDescription) {
-      throw new BadRequestException('Заполните краткое описание.');
-    }
-    if (!Number.isFinite(input.anodeCathodeMassRatio) || input.anodeCathodeMassRatio < 0) {
-      throw new BadRequestException('Соотношение массы анода к массе катода должно быть неотрицательным числом.');
-    }
-    if (
-      !Number.isFinite(input.concentration) ||
-      input.concentration < 0 ||
-      input.concentration > 100
-    ) {
-      throw new BadRequestException('Концентрация должна быть от 0 до 100%.');
+    return this.serializer.toDetails(await this.findDraft(currentUser.id));
+  }
+
+  async createDraft(
+    dto: CreateElectrolyteSolutionDto,
+    files: ElectrolyteSolutionMediaFiles | undefined,
+  ): Promise<ElectrolyteSolutionDto> {
+    const currentUser = getCurrentUser();
+    const image = files?.image?.[0];
+    const video = files?.video?.[0];
+
+    if (!image || !video) {
+      throw new BadRequestException('Приложите файлы: image — изображение, video — видео');
     }
 
-    const draft = await this.getDraftByCreator(creatorId);
-    if (!draft) throw new NotFoundException('Черновик не найден.');
+    const imageExtension = IMAGE_EXTENSIONS[image.mimetype];
+    const videoExtension = VIDEO_EXTENSIONS[video.mimetype];
 
-    draft.shortDescription = shortDescription;
-    draft.anodeCathodeMassRatio = input.anodeCathodeMassRatio;
-    draft.concentration = input.concentration;
-    draft.status = CompoundStatus.Published;
+    if (!imageExtension) {
+      throw new BadRequestException('Изображение должно быть в формате jpg, png, webp или gif');
+    }
+    if (!videoExtension) {
+      throw new BadRequestException('Видео должно быть в формате mp4, webm или mov');
+    }
+    if (image.size > MAX_IMAGE_SIZE) {
+      throw new BadRequestException('Изображение должно быть не больше 5 МБ');
+    }
+
+    const hasDraft = await this.electrolyses.existsBy({
+      creatorId: currentUser.id,
+      status: ElectrolyteSolutionStatus.Draft,
+    });
+    if (hasDraft) {
+      throw new ConflictException('У пользователя уже есть черновик');
+    }
+
+    const imageKey = generateMediaKey('image', imageExtension);
+    const videoKey = generateMediaKey('video', videoExtension);
+
+    try {
+      await this.uploadMedia(imageKey, image);
+      await this.uploadMedia(videoKey, video);
+
+      const draft = await this.electrolyses.save(
+        this.electrolyses.create({
+          compoundName: dto.compoundName,
+          shortDescription: null,
+          status: ElectrolyteSolutionStatus.Draft,
+          imageKey,
+          videoKey,
+          anodeCathodeMassRatio: null,
+          concentrationPercent: null,
+          formedAt: null,
+          creatorId: currentUser.id,
+        }),
+      );
+
+      return this.serializer.toDetails(draft);
+    } catch (error) {
+      await this.minio.removeQuietly(imageKey);
+      await this.minio.removeQuietly(videoKey);
+
+      if (isUniqueViolation(error)) {
+        throw new ConflictException('У пользователя уже есть черновик');
+      }
+      throw error;
+    }
+  }
+
+  async publishDraft(dto: PublishElectrolyteSolutionDto): Promise<ElectrolyteSolutionDto> {
+    const currentUser = getCurrentUser();
+    const draft = await this.findDraft(currentUser.id);
+
+    draft.shortDescription = dto.shortDescription;
+    draft.anodeCathodeMassRatio = dto.anodeCathodeMassRatio;
+    draft.concentrationPercent = dto.concentrationPercent;
+    draft.status = ElectrolyteSolutionStatus.Published;
     draft.formedAt = new Date();
 
-    return this.compounds.save(draft);
+    return this.serializer.toDetails(await this.electrolyses.save(draft));
   }
 
-  async deleteCompound(id: number): Promise<boolean> {
-    const rows: Array<{ id: number }> = await this.compounds.query(
-      `UPDATE electrolyte_solutions
-       SET status = $1
-       WHERE id = $2 AND status <> $1
-       RETURNING id`,
-      [CompoundStatus.Deleted, id],
-    );
+  async deleteElectrolyteSolution(id: number): Promise<void> {
+    const currentUser = getCurrentUser();
+    const electrolyteSolution = await this.findOwnElectrolyteSolution(id, currentUser.id);
 
-    return rows.length > 0;
+    await this.electrolyses.update(electrolyteSolution.id, {
+      status: ElectrolyteSolutionStatus.Deleted,
+    });
   }
 
-  async countLikes(compoundId: number): Promise<number> {
-    return this.likes.count({ where: { compoundId } });
+  async likeElectrolyteSolution(
+    id: number,
+    dto: LikeElectrolyteSolutionDto,
+  ): Promise<ElectrolyteSolutionLikesDto> {
+    const currentUser = getCurrentUser();
+    const isPublished = await this.electrolyses.existsBy({
+      id,
+      status: ElectrolyteSolutionStatus.Published,
+    });
+
+    if (!isPublished) {
+      throw new NotFoundException(`Раствор с id ${id} не найден`);
+    }
+
+    const like = { compoundId: id, userId: currentUser.id };
+
+    if (dto.like === 1) {
+      if (!(await this.likes.existsBy(like))) {
+        await this.likes.insert(like).catch((error: unknown) => {
+          if (!isUniqueViolation(error)) {
+            throw error;
+          }
+        });
+      }
+    } else {
+      await this.likes.delete(like);
+    }
+
+    return {
+      id,
+      likes: await this.likes.countBy({ compoundId: id }),
+      likedByCurrentUser: dto.like,
+    };
   }
+
+  private async findFeedElectrolyteSolution(
+    id: number | undefined,
+    next: boolean,
+  ): Promise<ElectrolyteSolution | null> {
+    const published = { status: ElectrolyteSolutionStatus.Published };
+    const first = () =>
+      this.electrolyses.findOne({ where: published, order: { id: 'ASC' } });
+
+    if (id === undefined) {
+      return first();
+    }
+
+    if (next) {
+      const nextElectrolyteSolution = await this.electrolyses.findOne({
+        where: { ...published, id: MoreThan(id) },
+        order: { id: 'ASC' },
+      });
+
+      return nextElectrolyteSolution ?? first();
+    }
+
+    return this.electrolyses.findOneBy({ ...published, id });
+  }
+
+  private async findDraft(creatorId: number): Promise<ElectrolyteSolution> {
+    const draft = await this.electrolyses.findOneBy({
+      creatorId,
+      status: ElectrolyteSolutionStatus.Draft,
+    });
+
+    if (!draft) {
+      throw new NotFoundException('У пользователя нет черновика');
+    }
+
+    return draft;
+  }
+
+  private async findOwnElectrolyteSolution(
+    id: number,
+    currentUserId: number,
+  ): Promise<ElectrolyteSolution> {
+    const electrolyteSolution = await this.electrolyses.findOneBy({
+      id,
+      status: Not(ElectrolyteSolutionStatus.Deleted),
+    });
+
+    if (!electrolyteSolution) {
+      throw new NotFoundException(`Раствор с id ${id} не найден`);
+    }
+    if (electrolyteSolution.creatorId !== currentUserId) {
+      throw new ForbiddenException('Изменять можно только свои растворы');
+    }
+
+    return electrolyteSolution;
+  }
+
+  private async uploadMedia(key: string, file: UploadedMediaFile): Promise<void> {
+    try {
+      await this.minio.upload(key, file.buffer, file.mimetype);
+    } catch {
+      throw new ServiceUnavailableException('Не удалось сохранить файл в MinIO');
+    }
+  }
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  const failure = error as { code?: string; driverError?: { code?: string } } | null;
+
+  return failure?.code === '23505' || failure?.driverError?.code === '23505';
 }

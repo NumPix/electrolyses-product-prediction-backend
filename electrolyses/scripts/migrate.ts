@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Compound } from '../src/electrolyses/entities/compound.entity';
-import { ElectrolysesUser } from '../src/electrolyses/entities/electrolyses-user.entity';
-import { CompoundLike } from '../src/electrolyses/entities/compound-like.entity';
+import { ElectrolyteSolution } from '../src/entities/electrolyte-solution.entity';
+import { User } from '../src/entities/user.entity';
+import { ElectrolyteSolutionLike } from '../src/entities/electrolyte-solution-like.entity';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -10,7 +10,7 @@ const dataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Compound, ElectrolysesUser, CompoundLike],
+  entities: [ElectrolyteSolution, User, ElectrolyteSolutionLike],
   synchronize: true,
 });
 
